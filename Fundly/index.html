@@ -1,0 +1,3580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Fundly</title>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0d9488">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Fundly">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+:root {
+    --primary: #0d9488;
+    --primary-dark: #0f766e;
+    --primary-light: #ccfbf1;
+    --primary-gradient: linear-gradient(135deg, #0d9488 0%, #059669 100%);
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --text: #0f172a;
+    --muted: #64748b;
+    --border: #e2e8f0;
+    --danger: #ef4444;
+    --danger-light: #fef2f2;
+    --success: #10b981;
+
+    --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.04);
+    --shadow-md: 0 10px 25px -5px rgba(13, 148, 136, 0.1);
+    --shadow-lg: 0 20px 30px -10px rgba(15, 23, 42, 0.08);
+
+    --glass: rgba(255, 255, 255, 0.85);
+    --radius: 20px;
+}
+
+[data-theme="dark"] {
+    --bg: #090d16;
+    --card: #111827;
+    --text: #f8fafc;
+    --muted: #94a3b8;
+    --border: #1e293b;
+    --primary-light: rgba(13, 148, 136, 0.15);
+    --danger-light: rgba(239, 68, 68, 0.15);
+
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 20px 30px -10px rgba(0, 0, 0, 0.4);
+
+    --glass: rgba(17, 24, 39, 0.85);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    transition: background-color .3s ease, color .3s ease;
+}
+
+button,
+input,
+select {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+    border: none;
+    outline: none;
+    transition: all .2s ease;
+}
+
+button:active {
+    transform: scale(.97);
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* BACKGROUND */
+
+.bg-glow {
+    position: fixed;
+    top: -100px;
+    right: -100px;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(
+        circle,
+        rgba(13,148,136,.15) 0%,
+        rgba(255,255,255,0) 70%
+    );
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* AUTH */
+
+.auth-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 420px;
+    background: var(--glass);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 36px 30px;
+    box-shadow: var(--shadow-lg);
+    text-align: center;
+}
+
+.logo {
+    width: 64px;
+    height: 64px;
+    border-radius: 20px;
+    background: var(--primary-gradient);
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    font-weight: 800;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-md);
+}
+
+.auth-card h1 {
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 6px;
+}
+
+.subtitle {
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 24px;
+}
+
+.tabs {
+    display: flex;
+    background: var(--border);
+    padding: 4px;
+    border-radius: 14px;
+    margin-bottom: 24px;
+}
+
+.tab {
+    flex: 1;
+    background: transparent;
+    padding: 10px;
+    border-radius: 10px;
+    color: var(--muted);
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.tab.active {
+    background: var(--card);
+    color: var(--primary);
+    box-shadow: var(--shadow-sm);
+}
+
+/* FORMS */
+
+.form-group {
+    margin-bottom: 18px;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    color: var(--muted);
+    margin-bottom: 6px;
+}
+
+input,
+select {
+    width: 100%;
+    border: 1.5px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    padding: 12px 16px;
+    border-radius: 12px;
+    outline: none;
+    font-size: 15px;
+}
+
+input:focus,
+select:focus {
+    border-color: var(--primary);
+}
+
+.pin-wrap {
+    position: relative;
+}
+
+.pin-wrap input {
+    letter-spacing: 4px;
+    font-size: 18px;
+}
+
+.pin-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 6px;
+}
+
+.primary-btn {
+    width: 100%;
+    background: var(--primary-gradient);
+    color: white;
+    padding: 14px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 15px;
+    box-shadow: var(--shadow-md);
+}
+
+.small-note {
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.5;
+    margin-top: 20px;
+}
+
+/* TOP BAR */
+
+.topbar {
+    height: 76px;
+    background: var(--glass);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 32px;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 800;
+    font-size: 20px;
+}
+
+.brand-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: var(--primary-gradient);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 20px;
+    box-shadow: var(--shadow-sm);
+}
+
+.top-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.icon-btn {
+    width: 42px;
+    height: 42px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--card);
+    color: var(--text);
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.user-pill {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 700;
+    background: var(--card);
+    color: var(--primary);
+}
+
+/* LAYOUT */
+
+.layout {
+    max-width: 1200px;
+    margin: auto;
+    padding: 32px 24px;
+}
+
+.welcome {
+    margin-bottom: 28px;
+}
+
+.welcome h1 {
+    font-size: 32px;
+    font-weight: 800;
+}
+
+.welcome p {
+    color: var(--muted);
+    font-size: 15px;
+    margin-top: 4px;
+}
+
+/* STATS */
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    gap: 20px;
+    margin-bottom: 32px;
+}
+
+.stat {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: var(--shadow-sm);
+    position: relative;
+    overflow: hidden;
+}
+
+.stat::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: var(--border);
+}
+
+.stat.total::before {
+    background: var(--primary);
+}
+
+.stat.green::before {
+    background: var(--success);
+}
+
+.stat.red::before {
+    background: var(--danger);
+}
+
+.stat-label {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+.stat-value {
+    font-size: 28px;
+    font-weight: 800;
+}
+
+.stat.green .stat-value {
+    color: var(--success);
+}
+
+.stat.red .stat-value {
+    color: var(--danger);
+}
+
+/* SECTIONS */
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.section-header h2 {
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.secondary-btn {
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    padding: 10px 16px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 13px;
+}
+
+.green-btn {
+    background: var(--primary-gradient);
+    color: white;
+    padding: 10px 18px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 13px;
+}
+
+.back-home-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--card);
+    color: var(--primary);
+    border: 1px solid var(--border);
+    padding: 10px 18px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 24px;
+}
+
+/* CHILDREN */
+
+.children-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill,minmax(280px,1fr));
+    gap: 20px;
+}
+
+.child-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: var(--shadow-sm);
+    transition: .2s;
+}
+
+.child-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+}
+
+.child-top {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+.avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+    background: var(--primary-light);
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 20px;
+}
+
+.child-name {
+    font-weight: 800;
+    font-size: 18px;
+}
+
+.child-label {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+}
+
+.child-balance {
+    font-size: 28px;
+    font-weight: 800;
+    margin-bottom: 20px;
+}
+
+.card-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.card-actions button {
+    flex: 1;
+}
+
+/* DETAIL */
+
+.detail {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px;
+    box-shadow: var(--shadow-md);
+}
+
+.detail-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+}
+
+.detail-person {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.detail-balance {
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--primary);
+}
+
+.detail-buttons {
+    display: flex;
+    gap: 12px;
+}
+
+.detail-buttons button {
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.add-money {
+    background: var(--primary-gradient);
+    color: white;
+}
+
+.spend-money {
+    background: var(--danger-light);
+    color: var(--danger);
+}
+
+/* TRANSACTIONS */
+
+.transaction-tools {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.transaction-tools input {
+    flex: 2;
+}
+
+.transaction-tools select {
+    flex: 1;
+}
+
+.transactions {
+    display: flex;
+    flex-direction: column;
+}
+
+.transaction {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.tx-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.tx-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 18px;
+}
+
+.tx-icon.in {
+    background: var(--primary-light);
+    color: var(--primary);
+}
+
+.tx-icon.out {
+    background: var(--danger-light);
+    color: var(--danger);
+}
+
+.tx-description {
+    font-weight: 700;
+    font-size: 15px;
+}
+
+.tx-category {
+    display: inline-block;
+    font-size: 11px;
+    background: var(--border);
+    color: var(--muted);
+    padding: 2px 8px;
+    border-radius: 6px;
+    margin-left: 6px;
+}
+
+.tx-date {
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 3px;
+}
+
+.tx-right {
+    text-align: right;
+}
+
+.tx-amount {
+    font-weight: 800;
+    font-size: 16px;
+}
+
+.tx-amount.in {
+    color: var(--success);
+}
+
+.tx-amount.out {
+    color: var(--danger);
+}
+
+.receipt-link {
+    background: transparent;
+    color: var(--primary);
+    font-size: 12px;
+    font-weight: 700;
+    margin-top: 4px;
+}
+
+/* MODALS */
+
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(15,23,42,.65);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 100;
+}
+
+.modal-box {
+    width: 100%;
+    max-width: 460px;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 28px;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border);
+}
+
+.modal-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.modal-head h2 {
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.close {
+    background: var(--border);
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    font-size: 18px;
+    color: var(--text);
+}
+
+.modal-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.modal-actions button {
+    flex: 1;
+}
+
+/* SETTINGS */
+
+.settings-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+    gap: 12px;
+}
+
+.settings-info strong {
+    display: block;
+    font-size: 14px;
+}
+
+.settings-info span {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.danger-btn {
+    background: var(--danger-light);
+    color: var(--danger);
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 13px;
+}
+
+/* RECEIPT */
+
+.receipt {
+    background: #fff;
+    color: #0f172a;
+    padding: 30px 24px;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+}
+
+.receipt-brand {
+    text-align: center;
+    font-weight: 800;
+    font-size: 25px;
+    color: #0d9488;
+}
+
+.receipt-sub {
+    text-align: center;
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 3px;
+}
+
+.receipt-divider {
+    border-top: 1px dashed #cbd5e1;
+    margin: 20px 0;
+}
+
+.receipt-status {
+    text-align: center;
+    margin: 18px 0;
+}
+
+.receipt-status span {
+    display: inline-block;
+    padding: 7px 15px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.receipt-status.in span {
+    background: #ccfbf1;
+    color: #0d9488;
+}
+
+.receipt-status.out span {
+    background: #fef2f2;
+    color: #ef4444;
+}
+
+.receipt-amount {
+    text-align: center;
+    font-size: 34px;
+    font-weight: 800;
+    margin-bottom: 20px;
+}
+
+.receipt-line {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 10px 0;
+    border-bottom: 1px dashed #e2e8f0;
+    font-size: 13px;
+}
+
+.receipt-line span:first-child {
+    color: #64748b;
+}
+
+.receipt-line strong {
+    text-align: right;
+    word-break: break-word;
+}
+
+.receipt-footer {
+    text-align: center;
+    color: #64748b;
+    font-size: 10px;
+    line-height: 1.5;
+    margin-top: 20px;
+}
+
+/* TOAST */
+
+.toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #0f172a;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 30px;
+    opacity: 0;
+    pointer-events: none;
+    transition: .3s;
+    z-index: 300;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* EMPTY */
+
+.empty {
+    text-align: center;
+    background: var(--card);
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 48px 20px;
+    color: var(--muted);
+}
+
+/* RESPONSIVE */
+
+@media (max-width:768px) {
+
+    .stats {
+        grid-template-columns: 1fr;
+    }
+
+    .topbar {
+        padding: 0 16px;
+    }
+
+    .layout {
+        padding: 20px 16px;
+    }
+
+    .user-pill {
+        display: none;
+    }
+
+    .transaction-tools {
+        flex-direction: column;
+    }
+
+    .detail-head {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .detail-buttons {
+        width: 100%;
+    }
+
+    .detail-buttons button {
+        flex: 1;
+    }
+
+    .transaction {
+        align-items: flex-start;
+    }
+
+    .tx-right {
+        min-width: 100px;
+    }
+
+    .modal-box {
+        padding: 22px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="bg-glow"></div>
+
+<!-- AUTH SCREEN -->
+
+<div id="authScreen" class="auth-page">
+
+    <div class="auth-card">
+
+        <div class="logo">₦</div>
+
+        <h1>Fundly</h1>
+
+        <p class="subtitle">
+            Your money, organized.
+        </p>
+
+        <div class="tabs">
+            <button id="loginTab"
+                    class="tab active"
+                    onclick="showAuth('login')">
+                Login
+            </button>
+
+            <button id="registerTab"
+                    class="tab"
+                    onclick="showAuth('register')">
+                Create Account
+            </button>
+        </div>
+
+        <!-- LOGIN -->
+
+        <form id="loginForm" onsubmit="login(event)">
+
+            <div class="form-group">
+
+                <label>Username</label>
+
+                <input
+                    id="loginUsername"
+                    required
+                    autocomplete="username"
+                    placeholder="e.g. ayman">
+
+            </div>
+
+            <div class="form-group">
+
+                <label>4-digit PIN</label>
+
+                <div class="pin-wrap">
+
+                    <input
+                        id="loginPin"
+                        type="password"
+                        inputmode="numeric"
+                        maxlength="4"
+                        pattern="[0-9]{4}"
+                        required
+                        placeholder="••••">
+
+                    <button
+                        type="button"
+                        class="pin-toggle"
+                        onclick="togglePin('loginPin')">
+                        Show
+                    </button>
+
+                </div>
+
+            </div>
+
+            <button class="primary-btn" type="submit">
+                Unlock Fundly
+            </button>
+
+        </form>
+
+        <!-- REGISTER -->
+
+        <form
+            id="registerForm"
+            class="hidden"
+            onsubmit="register(event)">
+
+            <div class="form-group">
+
+                <label>Your Name</label>
+
+                <input
+                    id="registerName"
+                    required
+                    placeholder="Full Name">
+
+            </div>
+
+            <div class="form-group">
+
+                <label>Username</label>
+
+                <input
+                    id="registerUsername"
+                    required
+                    placeholder="Choose username">
+
+            </div>
+
+            <div class="form-group">
+
+                <label>4-digit PIN</label>
+
+                <div class="pin-wrap">
+
+                    <input
+                        id="registerPin"
+                        type="password"
+                        inputmode="numeric"
+                        maxlength="4"
+                        pattern="[0-9]{4}"
+                        required
+                        placeholder="••••">
+
+                    <button
+                        type="button"
+                        class="pin-toggle"
+                        onclick="togglePin('registerPin')">
+                        Show
+                    </button>
+
+                </div>
+
+            </div>
+
+            <button class="primary-btn" type="submit">
+                Create Fundly Account
+            </button>
+
+        </form>
+
+        <p class="small-note">
+            🔒 Your data is stored locally on this device.
+            Fundly is a personal money-tracking prototype, not a bank.
+        </p>
+
+    </div>
+
+</div>
+
+
+<!-- MAIN APP -->
+
+<div id="app" class="app hidden">
+
+    <header class="topbar">
+
+        <div class="brand">
+
+            <div class="brand-icon">₦</div>
+
+            <span>Fundly</span>
+
+        </div>
+
+        <div class="top-actions">
+
+            <button
+                class="icon-btn"
+                title="Toggle Theme"
+                onclick="toggleTheme()">
+                ◐
+            </button>
+
+            <button
+                class="icon-btn"
+                title="Settings"
+                onclick="openSettings()">
+                ⚙
+            </button>
+
+            <div id="userPill" class="user-pill"></div>
+
+        </div>
+
+    </header>
+
+
+    <main class="layout">
+
+        <!-- HOME -->
+
+        <div id="homeView">
+
+            <div class="welcome">
+
+                <h1>
+                    Hello,
+                    <span id="welcomeName">Ayman</span>
+                    👋
+                </h1>
+
+                <p>
+                    Here's your family's financial overview.
+                </p>
+
+            </div>
+
+
+            <!-- STATS -->
+
+            <section class="stats">
+
+                <div class="stat total">
+
+                    <div class="stat-label">
+                        Total Balance
+                    </div>
+
+                    <div id="totalBalance"
+                         class="stat-value">
+                        ₦0.00
+                    </div>
+
+                </div>
+
+
+                <div class="stat green">
+
+                    <div class="stat-label">
+                        Money Added
+                    </div>
+
+                    <div id="totalReceived"
+                         class="stat-value">
+                        ₦0.00
+                    </div>
+
+                </div>
+
+
+                <div class="stat red">
+
+                    <div class="stat-label">
+                        Money Spent
+                    </div>
+
+                    <div id="totalSpent"
+                         class="stat-value">
+                        ₦0.00
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- CHILD ACCOUNTS -->
+
+            <section style="margin-bottom:32px;">
+
+                <div class="section-header">
+
+                    <h2>Child Accounts</h2>
+
+                    <button
+                        class="green-btn"
+                        onclick="openAddChild()">
+                        + Add Account
+                    </button>
+
+                </div>
+
+                <div
+                    id="childrenGrid"
+                    class="children-grid">
+                </div>
+
+            </section>
+
+        </div>
+
+
+        <!-- CHILD DETAIL -->
+
+        <div id="detailSection" class="hidden">
+
+            <button
+                class="back-home-btn"
+                onclick="closeChildDetail()">
+
+                ← Back to Home
+
+            </button>
+
+
+            <div class="detail">
+
+                <div class="detail-head">
+
+                    <div class="detail-person">
+
+                        <div
+                            id="detailAvatar"
+                            class="avatar">
+                            A
+                        </div>
+
+                        <div>
+
+                            <div
+                                id="detailName"
+                                class="child-name">
+                                Child
+                            </div>
+
+                            <div class="child-label">
+                                Current Balance
+                            </div>
+
+                            <div
+                                id="detailBalance"
+                                class="detail-balance">
+                                ₦0.00
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="detail-buttons">
+
+                        <button
+                            class="add-money"
+                            onclick="openMoneyModal('in')">
+                            + Add Money
+                        </button>
+
+                        <button
+                            class="spend-money"
+                            onclick="openMoneyModal('out')">
+                            − Record Spending
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <div class="transaction-tools">
+
+                    <input
+                        id="searchTransactions"
+                        placeholder="Search description..."
+                        oninput="renderTransactions()">
+
+                    <select
+                        id="transactionFilter"
+                        onchange="renderTransactions()">
+
+                        <option value="all">
+                            All Types
+                        </option>
+
+                        <option value="in">
+                            Received
+                        </option>
+
+                        <option value="out">
+                            Spent
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div
+                    id="transactions"
+                    class="transactions">
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+
+<!-- ADD CHILD MODAL -->
+
+<div id="childModal" class="modal hidden">
+
+    <div class="modal-box">
+
+        <div class="modal-head">
+
+            <h2>New Child Account</h2>
+
+            <button
+                class="close"
+                onclick="closeModal('childModal')">
+                ×
+            </button>
+
+        </div>
+
+
+        <form onsubmit="addChild(event)">
+
+            <div class="form-group">
+
+                <label>Child Name</label>
+
+                <input
+                    id="childName"
+                    placeholder="e.g. Ayman Jr."
+                    required>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>Starting Balance (₦)</label>
+
+                <input
+                    id="startingBalance"
+                    type="number"
+                    min="0"
+                    value="10000"
+                    required>
+
+            </div>
+
+
+            <div class="modal-actions">
+
+                <button
+                    type="button"
+                    class="secondary-btn"
+                    onclick="closeModal('childModal')">
+                    Cancel
+                </button>
+
+                <button
+                    class="primary-btn"
+                    type="submit">
+                    Create Account
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- TRANSACTION MODAL -->
+
+<div id="moneyModal" class="modal hidden">
+
+    <div class="modal-box">
+
+        <div class="modal-head">
+
+            <h2 id="moneyModalTitle">
+                Add Money
+            </h2>
+
+            <button
+                class="close"
+                onclick="closeModal('moneyModal')">
+                ×
+            </button>
+
+        </div>
+
+
+        <form onsubmit="saveTransaction(event)">
+
+            <div class="form-group">
+
+                <label>Amount (₦)</label>
+
+                <input
+                    id="transactionAmount"
+                    type="number"
+                    min="1"
+                    step="0.01"
+                    required
+                    placeholder="0.00">
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>Category</label>
+
+                <select id="transactionCategory">
+
+                    <option value="General">
+                        General
+                    </option>
+
+                    <option value="Allowance">
+                        Allowance
+                    </option>
+
+                    <option value="Groceries">
+                        Groceries
+                    </option>
+
+                    <option value="School">
+                        School / Education
+                    </option>
+
+                    <option value="Gifts">
+                        Gifts / Bonus
+                    </option>
+
+                    <option value="Savings">
+                        Savings
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>Description</label>
+
+                <input
+                    id="transactionDescription"
+                    placeholder="e.g. Weekly allowance"
+                    required>
+
+            </div>
+
+
+            <div class="modal-actions">
+
+                <button
+                    type="button"
+                    class="secondary-btn"
+                    onclick="closeModal('moneyModal')">
+                    Cancel
+                </button>
+
+                <button
+                    id="transactionSubmit"
+                    class="primary-btn"
+                    type="submit">
+                    Save
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- RECEIPT MODAL -->
+
+<div id="receiptModal" class="modal hidden">
+
+    <div class="modal-box">
+
+        <div class="modal-head">
+
+            <h2>Transaction Receipt</h2>
+
+            <button
+                class="close"
+                onclick="closeModal('receiptModal')">
+                ×
+            </button>
+
+        </div>
+
+
+        <div id="receiptArea"></div>
+
+
+        <div class="modal-actions">
+
+            <button
+                class="secondary-btn"
+                onclick="downloadReceiptImage()">
+                🖼 Export PNG
+            </button>
+
+            <button
+                class="green-btn"
+                onclick="downloadReceiptPDF()">
+                📄 Export PDF
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- SETTINGS -->
+
+<div id="settingsModal" class="modal hidden">
+
+    <div class="modal-box">
+
+        <div class="modal-head">
+
+            <h2>Fundly Settings</h2>
+
+            <button
+                class="close"
+                onclick="closeModal('settingsModal')">
+                ×
+            </button>
+
+        </div>
+
+
+        <div class="settings-row">
+
+            <div class="settings-info">
+
+                <strong>
+                    Change Security PIN
+                </strong>
+
+                <span>
+                    Update your access code
+                </span>
+
+            </div>
+
+            <button
+                class="secondary-btn"
+                onclick="openChangePin()">
+                Update
+            </button>
+
+        </div>
+
+
+        <div class="settings-row">
+
+            <div class="settings-info">
+
+                <strong>
+                    Backup Data
+                </strong>
+
+                <span>
+                    Export database to JSON
+                </span>
+
+            </div>
+
+            <button
+                class="secondary-btn"
+                onclick="exportData()">
+                Export
+            </button>
+
+        </div>
+
+
+        <div class="settings-row">
+
+            <div class="settings-info">
+
+                <strong>
+                    Restore Data
+                </strong>
+
+                <span>
+                    Import JSON backup
+                </span>
+
+            </div>
+
+            <button
+                class="secondary-btn"
+                onclick="importData()">
+                Import
+            </button>
+
+        </div>
+
+
+        <div class="settings-row">
+
+            <div class="settings-info">
+
+                <strong>
+                    Delete Account Data
+                </strong>
+
+                <span>
+                    Clear local records permanently
+                </span>
+
+            </div>
+
+            <button
+                class="danger-btn"
+                onclick="deleteAccount()">
+                Delete
+            </button>
+
+        </div>
+
+
+        <div class="settings-row">
+
+            <div class="settings-info">
+
+                <strong>
+                    Session
+                </strong>
+
+                <span>
+                    Lock current session
+                </span>
+
+            </div>
+
+            <button
+                class="secondary-btn"
+                onclick="logout()">
+                Lock
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- PIN MODAL -->
+
+<div id="pinModal" class="modal hidden">
+
+    <div class="modal-box">
+
+        <div class="modal-head">
+
+            <h2>Update PIN</h2>
+
+            <button
+                class="close"
+                onclick="closeModal('pinModal')">
+                ×
+            </button>
+
+        </div>
+
+
+        <form onsubmit="changePin(event)">
+
+            <div class="form-group">
+
+                <label>Current PIN</label>
+
+                <input
+                    id="currentPin"
+                    type="password"
+                    inputmode="numeric"
+                    maxlength="4"
+                    required>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>New 4-Digit PIN</label>
+
+                <input
+                    id="newPin"
+                    type="password"
+                    inputmode="numeric"
+                    maxlength="4"
+                    pattern="[0-9]{4}"
+                    required>
+
+            </div>
+
+
+            <div class="modal-actions">
+
+                <button
+                    type="button"
+                    class="secondary-btn"
+                    onclick="closeModal('pinModal')">
+                    Cancel
+                </button>
+
+                <button
+                    class="primary-btn"
+                    type="submit">
+                    Update
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<input
+    type="file"
+    id="importFileInput"
+    accept=".json"
+    class="hidden"
+    onchange="handleImportFile(event)">
+
+<div id="toast" class="toast"></div>
+
+
+<script>
+
+/* =========================================================
+   FUNDLY APP
+   ========================================================= */
+
+/*
+   IMPORTANT:
+   These storage keys are intentionally kept as
+   "ayman_money_*" so existing saved data is not lost
+   when the visible app name changes to Fundly.
+*/
+
+const USERS_KEY = "ayman_money_users_v4";
+const SESSION_KEY = "ayman_money_session_v4";
+const THEME_KEY = "ayman_money_theme_v4";
+
+let currentUser = null;
+let selectedChildId = null;
+let transactionType = "in";
+
+let lastReceiptTransactionId = null;
+
+
+/* =========================================================
+   HELPERS
+   ========================================================= */
+
+function generateId() {
+
+    return Date.now().toString(36) +
+           Math.random().toString(36).substring(2,8);
+
+}
+
+
+function money(amount) {
+
+    return "₦" +
+        Number(amount || 0).toLocaleString("en-NG", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+
+}
+
+
+function formatDate(date) {
+
+    return new Date(date).toLocaleString("en-NG", {
+        dateStyle: "medium",
+        timeStyle: "short"
+    });
+
+}
+
+
+function escapeHtml(value) {
+
+    return String(value ?? "")
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+
+}
+
+
+function getUsers() {
+
+    try {
+
+        return JSON.parse(
+            localStorage.getItem(USERS_KEY)
+        ) || [];
+
+    } catch {
+
+        return [];
+
+    }
+
+}
+
+
+function saveUsers(users) {
+
+    localStorage.setItem(
+        USERS_KEY,
+        JSON.stringify(users)
+    );
+
+}
+
+
+function saveCurrentUser() {
+
+    const users = getUsers();
+
+    const index = users.findIndex(
+        u => u.id === currentUser.id
+    );
+
+    if(index !== -1) {
+
+        users[index] = currentUser;
+
+        saveUsers(users);
+
+    }
+
+}
+
+
+function getInitials(name) {
+
+    return String(name || "A")
+        .trim()
+        .split(/\s+/)
+        .slice(0,2)
+        .map(w => w[0])
+        .join("")
+        .toUpperCase();
+
+}
+
+
+/* =========================================================
+   AUTH
+   ========================================================= */
+
+function showAuth(type) {
+
+    document
+        .getElementById("loginForm")
+        .classList.toggle(
+            "hidden",
+            type !== "login"
+        );
+
+    document
+        .getElementById("registerForm")
+        .classList.toggle(
+            "hidden",
+            type === "login"
+        );
+
+    document
+        .getElementById("loginTab")
+        .classList.toggle(
+            "active",
+            type === "login"
+        );
+
+    document
+        .getElementById("registerTab")
+        .classList.toggle(
+            "active",
+            type !== "login"
+        );
+
+}
+
+
+function register(event) {
+
+    event.preventDefault();
+
+    const name =
+        document.getElementById("registerName")
+        .value.trim();
+
+    const username =
+        document.getElementById("registerUsername")
+        .value.trim()
+        .toLowerCase();
+
+    const pin =
+        document.getElementById("registerPin")
+        .value.trim();
+
+
+    if(!/^\d{4}$/.test(pin)) {
+
+        toast("PIN must be exactly 4 numbers.");
+
+        return;
+
+    }
+
+
+    const users = getUsers();
+
+
+    if(users.some(u => u.username === username)) {
+
+        toast("Username already exists.");
+
+        return;
+
+    }
+
+
+    const user = {
+
+        id: generateId(),
+
+        name,
+
+        username,
+
+        pin,
+
+        children: [],
+
+        createdAt: new Date().toISOString()
+
+    };
+
+
+    users.push(user);
+
+    saveUsers(users);
+
+    localStorage.setItem(
+        SESSION_KEY,
+        user.id
+    );
+
+    currentUser = user;
+
+    document
+        .getElementById("registerForm")
+        .reset();
+
+    showApp();
+
+    toast("Fundly account created!");
+
+}
+
+
+function login(event) {
+
+    event.preventDefault();
+
+    const username =
+        document.getElementById("loginUsername")
+        .value.trim()
+        .toLowerCase();
+
+    const pin =
+        document.getElementById("loginPin")
+        .value.trim();
+
+
+    const user =
+        getUsers().find(
+            u =>
+                u.username === username &&
+                u.pin === pin
+        );
+
+
+    if(!user) {
+
+        toast("Invalid username or PIN.");
+
+        return;
+
+    }
+
+
+    currentUser = user;
+
+    localStorage.setItem(
+        SESSION_KEY,
+        user.id
+    );
+
+    document
+        .getElementById("loginForm")
+        .reset();
+
+    showApp();
+
+    toast("Welcome back to Fundly!");
+
+}
+
+
+function logout() {
+
+    localStorage.removeItem(
+        SESSION_KEY
+    );
+
+    currentUser = null;
+
+    selectedChildId = null;
+
+    document
+        .getElementById("app")
+        .classList.add("hidden");
+
+    document
+        .getElementById("authScreen")
+        .classList.remove("hidden");
+
+    closeAllModals();
+
+}
+
+
+function deleteAccount() {
+
+    if(!confirm(
+        "Permanently delete this Fundly account and all local records?"
+    )) return;
+
+
+    saveUsers(
+        getUsers().filter(
+            u => u.id !== currentUser.id
+        )
+    );
+
+    logout();
+
+    toast("Account deleted.");
+
+}
+
+
+/* =========================================================
+   APP
+   ========================================================= */
+
+function showApp() {
+
+    document
+        .getElementById("authScreen")
+        .classList.add("hidden");
+
+    document
+        .getElementById("app")
+        .classList.remove("hidden");
+
+
+    document
+        .getElementById("welcomeName")
+        .textContent = currentUser.name;
+
+
+    document
+        .getElementById("userPill")
+        .textContent =
+        "@" + currentUser.username;
+
+
+    renderDashboard();
+
+}
+
+
+function renderDashboard() {
+
+    if(!currentUser) return;
+
+
+    let total = 0;
+
+    let received = 0;
+
+    let spent = 0;
+
+
+    currentUser.children.forEach(child => {
+
+        total += Number(
+            child.balance || 0
+        );
+
+
+        child.transactions.forEach(tx => {
+
+            if(tx.type === "in") {
+
+                received += Number(tx.amount);
+
+            } else {
+
+                spent += Number(tx.amount);
+
+            }
+
+        });
+
+    });
+
+
+    document
+        .getElementById("totalBalance")
+        .textContent = money(total);
+
+
+    document
+        .getElementById("totalReceived")
+        .textContent = money(received);
+
+
+    document
+        .getElementById("totalSpent")
+        .textContent = money(spent);
+
+
+    renderChildren();
+
+}
+
+
+/* =========================================================
+   CHILDREN
+   ========================================================= */
+
+function openAddChild() {
+
+    document
+        .getElementById("childName")
+        .value = "";
+
+    document
+        .getElementById("startingBalance")
+        .value = "10000";
+
+    document
+        .getElementById("childModal")
+        .classList.remove("hidden");
+
+}
+
+
+function addChild(event) {
+
+    event.preventDefault();
+
+
+    const name =
+        document
+            .getElementById("childName")
+            .value.trim();
+
+
+    const startingBalance =
+        Number(
+            document
+                .getElementById("startingBalance")
+                .value
+        );
+
+
+    if(startingBalance < 0) {
+
+        toast("Starting balance cannot be negative.");
+
+        return;
+
+    }
+
+
+    const child = {
+
+        id: generateId(),
+
+        name,
+
+        balance: startingBalance,
+
+        transactions: [],
+
+        createdAt: new Date().toISOString()
+
+    };
+
+
+    currentUser.children.push(child);
+
+    saveCurrentUser();
+
+    closeModal("childModal");
+
+    renderDashboard();
+
+    toast(`${name}'s account is ready.`);
+
+}
+
+
+function renderChildren() {
+
+    const grid =
+        document.getElementById("childrenGrid");
+
+
+    if(currentUser.children.length === 0) {
+
+        grid.innerHTML = `
+            <div class="empty">
+                <strong>No child accounts yet.</strong>
+                <br>
+                Create one to start tracking money.
+            </div>
+        `;
+
+        return;
+
+    }
+
+
+    grid.innerHTML =
+        currentUser.children.map(child => `
+
+        <div class="child-card">
+
+            <div class="child-top">
+
+                <div class="avatar">
+                    ${escapeHtml(
+                        getInitials(child.name)
+                    )}
+                </div>
+
+                <div>
+
+                    <div class="child-name">
+                        ${escapeHtml(child.name)}
+                    </div>
+
+                    <div class="child-label">
+                        ${child.transactions.length}
+                        record${child.transactions.length === 1 ? "" : "s"}
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="child-balance">
+                ${money(child.balance)}
+            </div>
+
+
+            <div class="card-actions">
+
+                <button
+                    class="secondary-btn"
+                    onclick="openChild('${child.id}')">
+                    View
+                </button>
+
+                <button
+                    class="secondary-btn"
+                    style="color:var(--danger);"
+                    onclick="deleteChild('${child.id}')">
+                    Remove
+                </button>
+
+            </div>
+
+        </div>
+
+    `).join("");
+
+}
+
+
+function openChild(id) {
+
+    selectedChildId = id;
+
+
+    const child =
+        currentUser.children.find(
+            c => c.id === id
+        );
+
+
+    if(!child) return;
+
+
+    document
+        .getElementById("homeView")
+        .classList.add("hidden");
+
+
+    document
+        .getElementById("detailSection")
+        .classList.remove("hidden");
+
+
+    document
+        .getElementById("detailName")
+        .textContent = child.name;
+
+
+    document
+        .getElementById("detailAvatar")
+        .textContent =
+        getInitials(child.name);
+
+
+    document
+        .getElementById("detailBalance")
+        .textContent =
+        money(child.balance);
+
+
+    renderTransactions();
+
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+
+}
+
+
+function closeChildDetail() {
+
+    selectedChildId = null;
+
+
+    document
+        .getElementById("detailSection")
+        .classList.add("hidden");
+
+
+    document
+        .getElementById("homeView")
+        .classList.remove("hidden");
+
+
+    renderDashboard();
+
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
+
+}
+
+
+function deleteChild(id) {
+
+    if(!confirm(
+        "Remove this child account and all its transaction records?"
+    )) return;
+
+
+    currentUser.children =
+        currentUser.children.filter(
+            c => c.id !== id
+        );
+
+
+    saveCurrentUser();
+
+
+    if(selectedChildId === id) {
+
+        closeChildDetail();
+
+    } else {
+
+        renderDashboard();
+
+    }
+
+
+    toast("Account removed.");
+
+}
+
+
+/* =========================================================
+   TRANSACTIONS
+   ========================================================= */
+
+function openMoneyModal(type) {
+
+    if(!selectedChildId) return;
+
+
+    transactionType = type;
+
+
+    document
+        .getElementById("moneyModalTitle")
+        .textContent =
+        type === "in"
+            ? "Add Money"
+            : "Record Spending";
+
+
+    document
+        .getElementById("transactionSubmit")
+        .textContent =
+        type === "in"
+            ? "Add Funds"
+            : "Log Spending";
+
+
+    document
+        .getElementById("transactionAmount")
+        .value = "";
+
+
+    document
+        .getElementById("transactionDescription")
+        .value = "";
+
+
+    document
+        .getElementById("transactionCategory")
+        .value = "General";
+
+
+    document
+        .getElementById("moneyModal")
+        .classList.remove("hidden");
+
+}
+
+
+function saveTransaction(event) {
+
+    event.preventDefault();
+
+
+    const child =
+        currentUser.children.find(
+            c => c.id === selectedChildId
+        );
+
+
+    if(!child) return;
+
+
+    const amount =
+        Number(
+            document
+                .getElementById("transactionAmount")
+                .value
+        );
+
+
+    const category =
+        document
+            .getElementById("transactionCategory")
+            .value;
+
+
+    const description =
+        document
+            .getElementById("transactionDescription")
+            .value.trim();
+
+
+    if(!amount || amount <= 0) {
+
+        toast("Enter a valid amount.");
+
+        return;
+
+    }
+
+
+    if(!description) {
+
+        toast("Please enter a description.");
+
+        return;
+
+    }
+
+
+    if(
+        transactionType === "out" &&
+        amount > Number(child.balance)
+    ) {
+
+        toast("Insufficient child balance!");
+
+        return;
+
+    }
+
+
+    /*
+       SAVE THE EXACT BALANCES
+       BEFORE CHANGING THE ACCOUNT.
+    */
+
+    const previousBalance =
+        Number(child.balance);
+
+
+    const newBalance =
+        transactionType === "in"
+            ? previousBalance + amount
+            : previousBalance - amount;
+
+
+    child.balance = newBalance;
+
+
+    const transaction = {
+
+        id: generateId(),
+
+        type: transactionType,
+
+        amount: amount,
+
+        category: category,
+
+        description: description,
+
+        previousBalance: previousBalance,
+
+        newBalance: newBalance,
+
+        date: new Date().toISOString()
+
+    };
+
+
+    /*
+       Add newest transaction first.
+    */
+
+    child.transactions.unshift(
+        transaction
+    );
+
+
+    /*
+       SAVE TO LOCAL STORAGE.
+    */
+
+    saveCurrentUser();
+
+
+    /*
+       CLOSE TRANSACTION FORM.
+    */
+
+    closeModal("moneyModal");
+
+
+    /*
+       UPDATE THE CHILD PAGE.
+    */
+
+    document
+        .getElementById("detailBalance")
+        .textContent =
+        money(child.balance);
+
+
+    renderTransactions();
+
+
+    renderDashboard();
+
+
+    /*
+       IMPORTANT:
+       OPEN THE RECEIPT AUTOMATICALLY
+       AFTER THE TRANSACTION IS SAVED.
+    */
+
+    setTimeout(() => {
+
+        viewReceipt(
+            transaction.id,
+            true
+        );
+
+    }, 150);
+
+
+    toast(
+        transactionType === "in"
+            ? "Money added successfully!"
+            : "Spending recorded successfully!"
+    );
+
+}
+
+
+/* =========================================================
+   TRANSACTION LIST
+   ========================================================= */
+
+function renderTransactions() {
+
+    const container =
+        document.getElementById("transactions");
+
+
+    const child =
+        currentUser.children.find(
+            c => c.id === selectedChildId
+        );
+
+
+    if(!child) return;
+
+
+    const search =
+        document
+            .getElementById("searchTransactions")
+            .value
+            .toLowerCase();
+
+
+    const filter =
+        document
+            .getElementById("transactionFilter")
+            .value;
+
+
+    const txs =
+        child.transactions.filter(tx => {
+
+            const description =
+                String(
+                    tx.description || ""
+                ).toLowerCase();
+
+
+            return (
+                description.includes(search) &&
+                (
+                    filter === "all" ||
+                    tx.type === filter
+                )
+            );
+
+        });
+
+
+    if(txs.length === 0) {
+
+        container.innerHTML = `
+            <div class="empty">
+                No matching transactions.
+            </div>
+        `;
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+        txs.map(tx => `
+
+        <div class="transaction">
+
+            <div class="tx-left">
+
+                <div class="tx-icon ${tx.type}">
+                    ${tx.type === "in" ? "+" : "−"}
+                </div>
+
+                <div>
+
+                    <div class="tx-description">
+
+                        ${escapeHtml(
+                            tx.description
+                        )}
+
+                        <span class="tx-category">
+                            ${escapeHtml(
+                                tx.category || "General"
+                            )}
+                        </span>
+
+                    </div>
+
+                    <div class="tx-date">
+                        ${formatDate(tx.date)}
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="tx-right">
+
+                <div class="tx-amount ${tx.type}">
+
+                    ${tx.type === "in" ? "+" : "−"}
+                    ${money(tx.amount)}
+
+                </div>
+
+                <button
+                    class="receipt-link"
+                    onclick="viewReceipt('${tx.id}')">
+                    View Receipt
+                </button>
+
+            </div>
+
+        </div>
+
+    `).join("");
+
+}
+
+
+/* =========================================================
+   RECEIPTS
+   ========================================================= */
+
+function viewReceipt(id, automatic = false) {
+
+    let child = null;
+    let tx = null;
+
+
+    /*
+       First search the selected child.
+    */
+
+    if(selectedChildId) {
+
+        child =
+            currentUser.children.find(
+                c => c.id === selectedChildId
+            );
+
+        tx =
+            child?.transactions.find(
+                t => t.id === id
+            );
+
+    }
+
+
+    /*
+       If it wasn't found, search every child.
+       This makes receipt viewing more reliable.
+    */
+
+    if(!tx) {
+
+        for(const possibleChild of currentUser.children) {
+
+            const found =
+                possibleChild.transactions.find(
+                    t => t.id === id
+                );
+
+            if(found) {
+
+                child = possibleChild;
+
+                tx = found;
+
+                break;
+
+            }
+
+        }
+
+    }
+
+
+    if(!child || !tx) {
+
+        toast("Receipt could not be found.");
+
+        return;
+
+    }
+
+
+    lastReceiptTransactionId = tx.id;
+
+
+    const statusText =
+        tx.type === "in"
+            ? "MONEY RECEIVED"
+            : "MONEY SPENT";
+
+
+    const amountPrefix =
+        tx.type === "in"
+            ? "+"
+            : "−";
+
+
+    document
+        .getElementById("receiptArea")
+        .innerHTML = `
+
+        <div
+            class="receipt"
+            id="receiptPaper">
+
+            <div class="receipt-brand">
+                Fundly
+            </div>
+
+            <div class="receipt-sub">
+                Your money, organized.
+            </div>
+
+
+            <div class="receipt-divider"></div>
+
+
+            <div class="receipt-status ${tx.type}">
+
+                <span>
+                    ${statusText}
+                </span>
+
+            </div>
+
+
+            <div class="receipt-amount">
+
+                ${amountPrefix}${money(tx.amount)}
+
+            </div>
+
+
+            <div class="receipt-line">
+
+                <span>Account</span>
+
+                <strong>
+                    ${escapeHtml(child.name)}
+                </strong>
+
+            </div>
+
+
+            <div class="receipt-line">
+
+                <span>Category</span>
+
+                <strong>
+                    ${escapeHtml(
+                        tx.category || "General"
+                    )}
+                </strong>
+
+            </div>
+
+
+            <div class="receipt-line">
+
+                <span>Description</span>
+
+                <strong>
+                    ${escapeHtml(tx.description)}
+                </strong>
+
+            </div>
+
+
+            <div class="receipt-line">
+
+                <span>Previous Balance</span>
+
+                <strong>
+                    ${money(tx.previousBalance)}
+                </strong>
+
+            </div>
+
+
+            <div class="receipt-line">
+
+                <span>Transaction</span>
+
+                <strong>
+                    ${amountPrefix}${money(tx.amount)}
+                </strong>
+
+            </div>
+
+
+            <div class="receipt-line">
+
+                <span>New Balance</span>
+
+                <strong>
+                    ${money(tx.newBalance)}
+                </strong>
+
+            </div>
+
+
+            <div class="receipt-line">
+
+                <span>Date</span>
+
+                <strong>
+                    ${formatDate(tx.date)}
+                </strong>
+
+            </div>
+
+
+            <div class="receipt-line">
+
+                <span>Reference</span>
+
+                <strong>
+                    ${escapeHtml(tx.id)}
+                </strong>
+
+            </div>
+
+
+            <div class="receipt-footer">
+
+                Fundly personal money record.<br>
+
+                This is not a bank statement or bank receipt.
+
+            </div>
+
+        </div>
+
+    `;
+
+
+    document
+        .getElementById("receiptModal")
+        .classList.remove("hidden");
+
+}
+
+
+/* =========================================================
+   RECEIPT IMAGE
+   ========================================================= */
+
+async function downloadReceiptImage() {
+
+    const paper =
+        document.getElementById("receiptPaper");
+
+
+    if(!paper) {
+
+        toast("No receipt is open.");
+
+        return;
+
+    }
+
+
+    try {
+
+        const canvas =
+            await html2canvas(
+                paper,
+                {
+                    scale: 2,
+                    backgroundColor: "#ffffff",
+                    useCORS: true
+                }
+            );
+
+
+        const link =
+            document.createElement("a");
+
+
+        link.download =
+            `Fundly-Receipt-${lastReceiptTransactionId || "receipt"}.png`;
+
+
+        link.href =
+            canvas.toDataURL("image/png");
+
+
+        link.click();
+
+
+        toast("Receipt image exported.");
+
+    } catch(error) {
+
+        console.error(error);
+
+        toast("Could not export receipt image.");
+
+    }
+
+}
+
+
+/* =========================================================
+   RECEIPT PDF
+   ========================================================= */
+
+async function downloadReceiptPDF() {
+
+    const paper =
+        document.getElementById("receiptPaper");
+
+
+    if(!paper) {
+
+        toast("No receipt is open.");
+
+        return;
+
+    }
+
+
+    try {
+
+        const canvas =
+            await html2canvas(
+                paper,
+                {
+                    scale: 2,
+                    backgroundColor: "#ffffff",
+                    useCORS: true
+                }
+            );
+
+
+        const image =
+            canvas.toDataURL("image/png");
+
+
+        const { jsPDF } =
+            window.jspdf;
+
+
+        const pdf =
+            new jsPDF({
+                orientation: "portrait",
+                unit: "mm",
+                format: "a4"
+            });
+
+
+        const pageWidth = 170;
+
+        const pageHeight =
+            (canvas.height * pageWidth) /
+            canvas.width;
+
+
+        pdf.addImage(
+            image,
+            "PNG",
+            20,
+            20,
+            pageWidth,
+            pageHeight
+        );
+
+
+        pdf.save(
+            `Fundly-Receipt-${lastReceiptTransactionId || "receipt"}.pdf`
+        );
+
+
+        toast("Receipt PDF exported.");
+
+    } catch(error) {
+
+        console.error(error);
+
+        toast("Could not export receipt PDF.");
+
+    }
+
+}
+
+
+/* =========================================================
+   BACKUP
+   ========================================================= */
+
+function exportData() {
+
+    const data =
+        JSON.stringify(
+            {
+                app: "Fundly",
+                exportedAt:
+                    new Date().toISOString(),
+                account: currentUser
+            },
+            null,
+            2
+        );
+
+
+    const blob =
+        new Blob(
+            [data],
+            {
+                type: "application/json"
+            }
+        );
+
+
+    const link =
+        document.createElement("a");
+
+
+    link.href =
+        URL.createObjectURL(blob);
+
+
+    link.download =
+        `Fundly-Backup-${currentUser.username}.json`;
+
+
+    link.click();
+
+
+    URL.revokeObjectURL(link.href);
+
+
+    toast("Fundly backup exported.");
+
+}
+
+
+function importData() {
+
+    document
+        .getElementById("importFileInput")
+        .click();
+
+}
+
+
+function handleImportFile(event) {
+
+    const file =
+        event.target.files[0];
+
+
+    if(!file) return;
+
+
+    const reader =
+        new FileReader();
+
+
+    reader.onload =
+        function(evt) {
+
+            try {
+
+                const parsed =
+                    JSON.parse(
+                        evt.target.result
+                    );
+
+
+                if(
+                    parsed.account &&
+                    Array.isArray(
+                        parsed.account.children
+                    )
+                ) {
+
+                    currentUser.children =
+                        parsed.account.children;
+
+
+                    saveCurrentUser();
+
+                    renderDashboard();
+
+                    closeAllModals();
+
+                    toast(
+                        "Fundly data imported successfully!"
+                    );
+
+                } else {
+
+                    toast(
+                        "Invalid Fundly backup."
+                    );
+
+                }
+
+            } catch {
+
+                toast(
+                    "Invalid backup file."
+                );
+
+            }
+
+        };
+
+
+    reader.readAsText(file);
+
+}
+
+
+/* =========================================================
+   SETTINGS
+   ========================================================= */
+
+function openSettings() {
+
+    document
+        .getElementById("settingsModal")
+        .classList.remove("hidden");
+
+}
+
+
+function openChangePin() {
+
+    closeModal("settingsModal");
+
+    document
+        .getElementById("pinModal")
+        .classList.remove("hidden");
+
+}
+
+
+function changePin(event) {
+
+    event.preventDefault();
+
+
+    const current =
+        document
+            .getElementById("currentPin")
+            .value;
+
+
+    const newPin =
+        document
+            .getElementById("newPin")
+            .value;
+
+
+    if(current !== currentUser.pin) {
+
+        toast("Current PIN is incorrect.");
+
+        return;
+
+    }
+
+
+    if(!/^\d{4}$/.test(newPin)) {
+
+        toast(
+            "New PIN must contain 4 numbers."
+        );
+
+        return;
+
+    }
+
+
+    currentUser.pin = newPin;
+
+    saveCurrentUser();
+
+    closeModal("pinModal");
+
+    document
+        .getElementById("currentPin")
+        .value = "";
+
+    document
+        .getElementById("newPin")
+        .value = "";
+
+    toast("PIN updated successfully.");
+
+}
+
+
+/* =========================================================
+   THEME
+   ========================================================= */
+
+function toggleTheme() {
+
+    const current =
+        document.body.getAttribute(
+            "data-theme"
+        );
+
+
+    const target =
+        current === "dark"
+            ? "light"
+            : "dark";
+
+
+    document.body.setAttribute(
+        "data-theme",
+        target
+    );
+
+
+    localStorage.setItem(
+        THEME_KEY,
+        target
+    );
+
+}
+
+
+function applyTheme() {
+
+    const stored =
+        localStorage.getItem(
+            THEME_KEY
+        ) || "light";
+
+
+    document.body.setAttribute(
+        "data-theme",
+        stored
+    );
+
+}
+
+
+/* =========================================================
+   UI
+   ========================================================= */
+
+function closeModal(id) {
+
+    document
+        .getElementById(id)
+        .classList.add("hidden");
+
+}
+
+
+function closeAllModals() {
+
+    document
+        .querySelectorAll(".modal")
+        .forEach(
+            modal =>
+                modal.classList.add("hidden")
+        );
+
+}
+
+
+function toast(message) {
+
+    const t =
+        document.getElementById("toast");
+
+
+    t.textContent = message;
+
+    t.classList.add("show");
+
+
+    clearTimeout(
+        window.toastTimer
+    );
+
+
+    window.toastTimer =
+        setTimeout(
+            () =>
+                t.classList.remove("show"),
+            2500
+        );
+
+}
+
+
+function togglePin(id) {
+
+    const input =
+        document.getElementById(id);
+
+
+    input.type =
+        input.type === "password"
+            ? "text"
+            : "password";
+
+}
+
+
+/* =========================================================
+   PWA
+   ========================================================= */
+
+if("serviceWorker" in navigator) {
+
+    window.addEventListener(
+        "load",
+        () => {
+
+            navigator.serviceWorker
+                .register("./sw.js")
+                .then(() => {
+
+                    console.log(
+                        "Fundly offline mode ready."
+                    );
+
+                })
+                .catch(error => {
+
+                    console.error(
+                        "Service worker error:",
+                        error
+                    );
+
+                });
+
+        }
+    );
+
+}
+
+
+/* =========================================================
+   START
+   ========================================================= */
+
+(function startApp() {
+
+    applyTheme();
+
+
+    const session =
+        localStorage.getItem(
+            SESSION_KEY
+        );
+
+
+    if(session) {
+
+        const user =
+            getUsers().find(
+                u => u.id === session
+            );
+
+
+        if(user) {
+
+            currentUser = user;
+
+            showApp();
+
+            return;
+
+        }
+
+    }
+
+
+    document
+        .getElementById("authScreen")
+        .classList.remove("hidden");
+
+})();
+
+</script>
+
+</body>
+</html>
